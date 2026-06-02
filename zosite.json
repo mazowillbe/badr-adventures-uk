@@ -1,0 +1,15 @@
+{
+  "name": "badr-adventures",
+  "local_port": 54404,
+  "entrypoint": "bun run dev",
+  "publish": {
+    "label": "badr-adventures",
+    "type": "http",
+    "entrypoint": "bun run prod",
+    "published_port": 55047,
+    "env": {
+      "NODE_ENV": "production",
+      "ZO_CLIENT_IDENTITY_TOKEN": "none"
+    }
+  }
+}
