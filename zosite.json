@@ -1,7 +1,17 @@
 {
-  "name": "badr-adventures",
+  "name": "Badr Adventures",
   "local_port": 54404,
   "entrypoint": "bun run dev",
+  "env": {
+    "JWT_SECRET": "tnvitvqEyOFGwaN7LudgJ8CX5FHnSamK5Anmx0m0EEKuq699TgGbTrojqHX9TrZQ",
+    "ADMIN_EMAIL": "jefferygo0o@gmail.com",
+    "ADMIN_BOOTSTRAP_PASSWORD": "BadrAdmin!Hike2026",
+    "STRIPE_SECRET_KEY": "",
+    "STRIPE_WEBHOOK_SECRET": "",
+    "STRIPE_PUBLISHABLE_KEY": "",
+    "TELEGRAM_BOT_TOKEN": "8812737935:AAFlb8fV9rs08KMuCxsHwhdYhqmIjxohniM",
+    "TELEGRAM_ADMIN_CHAT_ID": "7553803691"
+  },
   "publish": {
     "label": "badr-adventures",
     "type": "http",
@@ -9,7 +19,15 @@
     "published_port": 55047,
     "env": {
       "NODE_ENV": "production",
-      "ZO_CLIENT_IDENTITY_TOKEN": "none"
+      "ZO_CLIENT_IDENTITY_TOKEN": "none",
+      "JWT_SECRET": "3foXnBW7jcDrFGYdZRRJPsNjkFGHcyWPNwRD24ghJysMPipmIHM6umYEuqBCrYWu",
+      "ADMIN_EMAIL": "jefferygo0o@gmail.com",
+      "ADMIN_BOOTSTRAP_PASSWORD": "BadrAdmin!Hike2026",
+      "STRIPE_SECRET_KEY": "",
+      "STRIPE_WEBHOOK_SECRET": "",
+      "STRIPE_PUBLISHABLE_KEY": "",
+      "TELEGRAM_BOT_TOKEN": "8812737935:AAFlb8fV9rs08KMuCxsHwhdYhqmIjxohniM",
+      "TELEGRAM_ADMIN_CHAT_ID": "7553803691"
     }
   }
 }
