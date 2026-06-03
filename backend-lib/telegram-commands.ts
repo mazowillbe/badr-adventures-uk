@@ -93,7 +93,7 @@ export function mountTelegramRoutes(app: Hono) {
       ok: true,
       service: "badr-adventures-telegram",
       configured: isTelegramConfigured(),
-      docs: "POST updates here. Set TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT_ID, then register the webhook URL with the Bot API.",
+      docs: "POST updates here. Set TELEGRAM_BOT_TOKEN + TELEGRAM_ADMIN_CHAT, then register the webhook URL with the Bot API.",
     }),
   );
 

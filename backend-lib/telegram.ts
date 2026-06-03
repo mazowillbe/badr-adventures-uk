@@ -2,7 +2,7 @@
 // https://core.telegram.org/bots/api
 //
 // All outbound messages route to a single admin chat id configured via
-// `TELEGRAM_ADMIN_CHAT_ID`. Inbound updates (text + photos) come in on a
+// `TELEGRAM_ADMIN_CHAT`. Inbound updates (text + photos) come in on a
 // webhook registered at /api/telegram/webhook.
 //
 // The bot is intentionally read-only from the public web: only the
@@ -12,12 +12,12 @@
 const TELEGRAM_API = "https://api.telegram.org/bot";
 
 export function adminChatId(): string | null {
-  const id = process.env.TELEGRAM_ADMIN_CHAT_ID;
+  const id = process.env.TELEGRAM_ADMIN_CHAT;
   return id && id.length > 0 ? id : null;
 }
 
 export function isTelegramConfigured(): boolean {
-  return Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_ADMIN_CHAT_ID);
+  return Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_ADMIN_CHAT);
 }
 
 function botToken(): string | null {
