@@ -1,7 +1,6 @@
 import { serveStatic } from "hono/bun";
 import type { ViteDevServer } from "vite";
 import { createServer as createViteServer } from "vite";
-import config from "./zosite.json";
 import { Hono } from "hono";
 import { mountRoutes } from "./backend-lib/routes";
 import { mountTelegramRoutes } from "./backend-lib/telegram-commands";
@@ -12,6 +11,18 @@ const app = new Hono();
 
 const mode: Mode =
   process.env.NODE_ENV === "production" ? "production" : "development";
+
+// Load config from zosite.json only in development (file is .gitignore'd in prod)
+let config: any = { local_port: 54404, publish: { published_port: 55047 } };
+if (mode === "development") {
+  try {
+    config = await import("./zosite.json");
+  } catch (e) {
+    console.warn(
+      "zosite.json not found, using defaults. In production, use Render env vars."
+    );
+  }
+}
 
 const configEnv = mode === "production" ? config.publish?.env : config.env;
 if (configEnv) {
