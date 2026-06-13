@@ -1249,8 +1249,8 @@ function saveRentItem(it: ParsedRent): { ok: true; id: string } | { ok: false; e
     if (existing) return { ok: false, error: `An item with id "${it.id}" already exists.` };
     db.run(
       `INSERT INTO equipment
-        (id, type, name, summary, description, image, location, price_pence, capacity, total_units, available_units, unit_label, features, active, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?)`,
+        (id, type, name, summary, description, image, location, price_pence, capacity, total_units, available_units, unit_label, features, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         it.id, it.type, it.name, it.summary, it.description, it.image, it.location,
         Math.round(it.pricePerNightGbp * 100), it.capacity, it.totalUnits, it.availableUnits, it.unitLabel, it.features.join(","),
