@@ -22,6 +22,7 @@ export type ParsedHike = {
   hero: string;
   tags: string[];
   guide: string;
+  id: string;
 };
 
 export type ParseError = { field: string; message: string };
@@ -49,6 +50,11 @@ const SPOTS_PATTERN = /\b(\d{1,3})\s*(?:spots?|places?|seats?|people|hikers)\b/i
 const DURATION_PATTERN = /(\d+\s*(?:day|days|night|nights)(?:\s*\/\s*\d+\s*night(?:s)?)?)/i;
 
 const IMAGE_PATTERN = /(\/images\/[\w.-]+\.(?:jpg|jpeg|png|webp))/i;
+
+// Description: a free-text block, labelled or as a multi-sentence paragraph.
+// Must be at least 50 chars of content after "description:" (case-insensitive).
+const DESCRIPTION_PATTERN =
+  /(?:^|\n)\s*(?:desc(?:ription)?:?\s*)\n?([^\n][\s\S]{50,})/im;
 
 const GUIDE_PATTERN =
   /(?:led by|lead(?:ing)?(?:\s+guide)?|guide(?:\s+is)?|with guide)\s+([A-Z][a-zA-Z][\w\s'-]{1,30})/i;
@@ -253,6 +259,20 @@ export function parseHikeText(input: string, options?: { imageHint?: string }): 
     });
   }
 
+  // Description (required)
+  let description = "";
+  const descMatch = text.match(DESCRIPTION_PATTERN);
+  if (descMatch) {
+    description = descMatch[1].trim();
+  }
+  if (!description) {
+    errors.push({
+      field: "description",
+      message:
+        "No description found. Add a <code>Description:</code> section with at least a few sentences about the hike.",
+    });
+  }
+
   // Guide
   let guide = "Abu Jabal";
   const guideMatch = text.match(GUIDE_PATTERN);
@@ -281,9 +301,10 @@ export function parseHikeText(input: string, options?: { imageHint?: string }): 
     if (m) location = titleCase(m[1]);
   }
 
-  // Summary + description
-  const summary = deriveSummary(text, title);
-  const description = summary.length + 2 < text.length ? text : summary;
+  // Summary is the first sentence of the description
+  const summary = description
+    ? description.split(/[.!?]\s*/)[0]?.trim() + "."
+    : deriveSummary(text, title);
 
   // Tags
   const tags = extractTags(text);

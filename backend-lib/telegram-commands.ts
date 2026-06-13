@@ -414,7 +414,9 @@ async function handleTextOrPhoto(
             );
             return;
           }
-          const siteUrl = process.env.PUBLIC_SITE_URL ?? "https://badr-adventures-blackbox.zocomputer.io";
+          const siteUrl =
+            process.env.PUBLIC_SITE_URL ||
+            `http://localhost:${process.env.PORT ?? 54404}`;
           await sendTelegramMessage(
             `✅ <b>Hike saved and live on the site.</b>\n` +
               `<a href="${siteUrl}/hikes/${r.id}">${siteUrl}/hikes/${r.id}</a>`,

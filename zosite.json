@@ -10,7 +10,8 @@
     "STRIPE_WEBHOOK_SECRET": "",
     "STRIPE_PUBLISHABLE_KEY": "",
     "TELEGRAM_BOT_TOKEN": "8812737935:AAFlb8fV9rs08KMuCxsHwhdYhqmIjxohniM",
-    "TELEGRAM_ADMIN_CHAT_ID": "7553803691"
+    "TELEGRAM_ADMIN_CHAT": "7553803691",
+    "RESEND_API_KEY": "re_andMyZpy_KkGeNGosxr9FGRxniELDQKjM"
   },
   "publish": {
     "label": "badr-adventures",
@@ -27,7 +28,8 @@
       "STRIPE_WEBHOOK_SECRET": "",
       "STRIPE_PUBLISHABLE_KEY": "",
       "TELEGRAM_BOT_TOKEN": "8812737935:AAFlb8fV9rs08KMuCxsHwhdYhqmIjxohniM",
-      "TELEGRAM_ADMIN_CHAT_ID": "7553803691"
+      "TELEGRAM_ADMIN_CHAT": "7553803691",
+      "RESEND_API_KEY": "re_andMyZpy_KkGeNGosxr9FGRxniELDQKjM"
     }
   }
 }

@@ -13,6 +13,15 @@ const app = new Hono();
 const mode: Mode =
   process.env.NODE_ENV === "production" ? "production" : "development";
 
+const configEnv = mode === "production" ? config.publish?.env : config.env;
+if (configEnv) {
+  for (const [key, value] of Object.entries(configEnv)) {
+    if (process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
+}
+
 mountRoutes(app);
 mountTelegramRoutes(app);
 
@@ -50,7 +59,15 @@ function configureProduction(app: Hono) {
 
 async function configureDevelopment(app: Hono): Promise<ViteDevServer> {
   const vite = await createViteServer({
-    server: { middlewareMode: true, hmr: false, ws: false },
+    server: {
+      middlewareMode: true,
+      hmr: {
+        protocol: "ws",
+        host: "localhost",
+        port: 24678,
+      },
+      ws: true,
+    },
     appType: "custom",
   });
   app.use("*", async (c, next) => {

@@ -1,0 +1,20 @@
+{
+  "processed": [
+    {
+      "id": "19e98e5f5131564a",
+      "subject": "Private booking for 20 people",
+      "from_name": "kamran khan",
+      "from_email": "kkthenuttah@gmail.com",
+      "date": "2026-06-05T17:47:47+0000",
+      "replied_at": "2026-06-09T21:15:00+0000"
+    },
+    {
+      "id": "19e8f6096cd5d438",
+      "subject": "New contact form message from Test User",
+      "from_name": "Test User",
+      "from_email": "test@test.com",
+      "date": "2026-06-03T21:25:31+0000",
+      "replied_at": "2026-06-09T21:15:00+0000"
+    }
+  ]
+}
