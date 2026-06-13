@@ -1,3 +1,5 @@
 node_modules/
 dist/
-zosite.json
+zosite.jsondata/
+bun.lock
+package-lock.json
