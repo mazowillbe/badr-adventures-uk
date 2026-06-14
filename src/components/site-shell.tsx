@@ -128,9 +128,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
               className="group flex items-center gap-3"
               aria-label="Badr Adventures home"
             >
-              <span className="relative flex h-11 w-11 items-center justify-center rounded-full bg-pine text-amber-300 shadow-sm ring-1 ring-pine-2/30 transition-transform group-hover:rotate-3">
-                <Mountain className="h-5 w-5" />
-                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-paper bg-rust" />
+              <span className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full shadow-sm ring-1 ring-pine-2/30 transition-transform group-hover:rotate-3">
+                <img
+                  src="/images/logo.png"
+                  alt="Badr Adventures logo"
+                  className="h-full w-full object-contain"
+                />
               </span>
               <span className="flex flex-col leading-tight">
                 <span className="font-display text-lg font-semibold tracking-tight text-pine">
