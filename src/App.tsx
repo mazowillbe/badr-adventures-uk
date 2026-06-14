@@ -13,6 +13,8 @@ import AdminPage from "@/pages/admin";
 import BookingSuccessPage from "@/pages/booking-success";
 import BookingsPage from "@/pages/bookings";
 import NotFoundPage from "@/pages/not-found";
+import PrivacyPage from "@/pages/privacy";
+import CookiesPage from "@/pages/cookies";
 import { SiteShell } from "@/components/site-shell";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -34,6 +36,8 @@ export default function App() {
             <Route path="/bookings/success" element={<BookingSuccessPage />} />
             <Route path="/bookings" element={<BookingsPage />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/cookies" element={<CookiesPage />} />
             <Route path="/home" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

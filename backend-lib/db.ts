@@ -60,6 +60,7 @@ db.exec(`
     subject TEXT,
     message TEXT NOT NULL,
     user_id INTEGER,
+    consented_at INTEGER NOT NULL,
     created_at INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
   );

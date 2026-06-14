@@ -13,10 +13,15 @@ export default function ContactPage() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!consent) {
+      toast.error("Please confirm you have read the privacy notice before sending.");
+      return;
+    }
     setSubmitting(true);
     try {
       await api("/api/contact", {
@@ -28,6 +33,7 @@ export default function ContactPage() {
       setEmail("");
       setSubject("");
       setMessage("");
+      setConsent(false);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to send message");
     } finally {
@@ -157,7 +163,25 @@ export default function ContactPage() {
                     placeholder="Tell us a little about what you have in mind…"
                   />
                 </div>
-                <Button type="submit" disabled={submitting} className="bg-emerald-900 hover:bg-emerald-800">
+                <div className="rounded-lg border border-ink/10 bg-stone-50 p-4">
+                  <label className="flex items-start gap-3 text-sm text-stone-600">
+                    <input
+                      type="checkbox"
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span>
+                      I have read the{" "}
+                      <a href="/privacy" target="_blank" rel="noopener" className="text-pine underline">
+                        Privacy Notice
+                      </a>{" "}
+                      and understand how my data will be used. I consent to my message being stored and
+                      responded to.
+                    </span>
+                  </label>
+                </div>
+                <Button type="submit" disabled={submitting || !consent} className="bg-emerald-900 hover:bg-emerald-800">
                   <Send className="mr-2 h-4 w-4" />
                   {submitting ? "Sending…" : "Send message"}
                 </Button>

@@ -357,11 +357,27 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </div>
             <div>
               <h4 className="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">
+                Legal
+              </h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <Link to="/privacy" className="text-paper/80 hover:text-amber-200">
+                    Privacy Notice
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/cookies" className="text-paper/80 hover:text-amber-200">
+                    Cookie Policy
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">
                 Get in touch
               </h4>
               <ul className="mt-4 space-y-2 text-sm text-paper/80">
-                <li>info@badradventuresuk.com</li>
-                <li>+44 (0) 7700 900123</li>
+                <li>jefferygo0o@gmail.com</li>
                 <li>Lake District · Peak District · Snowdonia</li>
               </ul>
             </div>

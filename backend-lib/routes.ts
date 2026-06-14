@@ -972,8 +972,8 @@ export function mountRoutes(app: Hono) {
       const session = await readSessionAsync(c);
       const body = contactSchema.parse(await c.req.json());
       db.run(
-        "INSERT INTO contact_messages (name, email, subject, message, user_id, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        [body.name, body.email, body.subject ?? null, body.message, session ? Number(session.sub) : null, Date.now()],
+        "INSERT INTO contact_messages (name, email, subject, message, user_id, consented_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [body.name, body.email, body.subject ?? null, body.message, session ? Number(session.sub) : null, Date.now(), Date.now()],
       );
       await sendContactEmail(body);
       return c.json({ ok: true });
@@ -1317,6 +1317,170 @@ export function mountRoutes(app: Hono) {
       // best-effort: silence unused-var warning for me
       void me;
       return c.json({ ok: true });
+    } catch (err) {
+      return handleError(err);
+    }
+  });
+
+  // ----- GDPR: Data subject rights -----------------------------------
+
+  // GET /api/gdpr/data — access your personal data
+  app.get("/api/gdpr/data", async (c) => {
+    try {
+      const session = await requireUser(c);
+      const userId = Number(session.sub);
+
+      const user = db
+        .query<{ id: number; email: string; name: string; is_admin: number; created_at: number }, [number]>(
+          "SELECT id, email, name, is_admin, created_at FROM users WHERE id = ?",
+        )
+        .get(userId);
+      if (!user) return c.json({ error: "User not found" }, 404);
+
+      const bookings = db
+        .query<{ id: string; hike_id: string; party_size: number; status: string; payment_status: string; created_at: number }, [number]>(
+          "SELECT id, hike_id, party_size, status, payment_status, created_at FROM bookings WHERE user_id = ? ORDER BY created_at DESC",
+        )
+        .all(userId);
+
+      const equipmentBookings = db
+        .query<{ id: string; equipment_id: string; start_date: string; end_date: string; nights: number; guests: number; status: string; created_at: number }, [number]>(
+          "SELECT id, equipment_id, start_date, end_date, nights, guests, status, created_at FROM equipment_bookings WHERE user_id = ? ORDER BY created_at DESC",
+        )
+        .all(userId);
+
+      return c.json({
+        exportedAt: new Date().toISOString(),
+        user: { id: user.id, email: user.email, name: user.name, memberSince: new Date(user.created_at).toISOString() },
+        bookings,
+        equipmentBookings,
+      });
+    } catch (err) {
+      return handleError(err);
+    }
+  });
+
+  // POST /api/gdpr/export — download your data as JSON
+  app.post("/api/gdpr/export", async (c) => {
+    try {
+      const session = await requireUser(c);
+      const userId = Number(session.sub);
+
+      const user = db
+        .query<{ id: number; email: string; name: string; created_at: number }, [number]>(
+          "SELECT id, email, name, created_at FROM users WHERE id = ?",
+        )
+        .get(userId);
+      if (!user) return c.json({ error: "User not found" }, 404);
+
+      const bookings = db
+        .query<
+          { id: string; hike_id: string; party_size: number; status: string; payment_status: string; total_pence: number; stripe_session_id: string | null; created_at: number },
+          [number]
+        >(
+          "SELECT id, hike_id, party_size, status, payment_status, total_pence, stripe_session_id, created_at FROM bookings WHERE user_id = ? ORDER BY created_at DESC",
+        )
+        .all(userId);
+
+      const equipmentBookings = db
+        .query<
+          { id: string; equipment_id: string; start_date: string; end_date: string; nights: number; units: number; guests: number; total_pence: number; status: string; payment_status: string; created_at: number },
+          [number]
+        >(
+          "SELECT id, equipment_id, start_date, end_date, nights, units, guests, total_pence, status, payment_status, created_at FROM equipment_bookings WHERE user_id = ? ORDER BY created_at DESC",
+        )
+        .all(userId);
+
+      const data = {
+        exportedAt: new Date().toISOString(),
+        user: { id: user.id, email: user.email, name: user.name, memberSince: new Date(user.created_at).toISOString() },
+        bookings: bookings.map((b) => ({
+          id: b.id,
+          hikeId: b.hike_id,
+          partySize: b.party_size,
+          status: b.status,
+          paymentStatus: b.payment_status,
+          totalGbp: Math.round(b.total_pence / 100),
+          stripeSessionId: b.stripe_session_id,
+          createdAt: new Date(b.created_at).toISOString(),
+        })),
+        equipmentBookings: equipmentBookings.map((eb) => ({
+          id: eb.id,
+          equipmentId: eb.equipment_id,
+          startDate: eb.start_date,
+          endDate: eb.end_date,
+          nights: eb.nights,
+          units: eb.units,
+          guests: eb.guests,
+          totalGbp: Math.round(eb.total_pence / 100),
+          status: eb.status,
+          paymentStatus: eb.payment_status,
+          createdAt: new Date(eb.created_at).toISOString(),
+        })),
+      };
+
+      const json = JSON.stringify(data, null, 2);
+      const filename = `badr-adventures-data-${new Date().toISOString().split("T")[0]}.json`;
+      return new Response(json, {
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        },
+      });
+    } catch (err) {
+      return handleError(err);
+    }
+  });
+
+  // DELETE /api/gdpr/delete — delete your account and all personal data
+  app.delete("/api/gdpr/delete", async (c) => {
+    try {
+      const session = await requireUser(c);
+      const userId = Number(session.sub);
+
+      // Delete bookings (CASCADE handles hike spots restoration via trigger or we do it manually)
+      const userBookings = db
+        .query<{ id: string; hike_id: string; party_size: number; status: string }, [number]>(
+          "SELECT id, hike_id, party_size, status FROM bookings WHERE user_id = ?",
+        )
+        .all(userId);
+      for (const b of userBookings) {
+        if (b.status === "confirmed") {
+          db.run("UPDATE hikes SET spots_left = spots_left + ? WHERE id = ?", [b.party_size, b.hike_id]);
+        }
+        db.run("DELETE FROM bookings WHERE id = ?", [b.id]);
+      }
+
+      // Delete equipment bookings
+      db.run("DELETE FROM equipment_bookings WHERE user_id = ?", [userId]);
+
+      // Delete contact messages
+      db.run("DELETE FROM contact_messages WHERE user_id = ?", [userId]);
+
+      // Delete Telegram allowlist entries for this user (if tracked)
+      db.run("DELETE FROM telegram_allowlist WHERE added_by = ?", [session.email]);
+
+      // Delete user
+      db.run("DELETE FROM users WHERE id = ?", [userId]);
+
+      clearSessionCookie(c, isSecureFromContext(c));
+      return c.json({ ok: true, deletedAt: new Date().toISOString() });
+    } catch (err) {
+      return handleError(err);
+    }
+  });
+
+  // ----- Retention: scheduled cleanup of old data --------------------
+  // These run on-demand via a cron or admin trigger, not as public endpoints.
+
+  // POST /api/admin/gdpr/cleanup — admin-only: delete old contact messages
+  app.post("/api/admin/gdpr/cleanup", async (c) => {
+    try {
+      await requireAdmin(c);
+      const body = z.object({ olderThanDays: z.number().int().min(1).default(365) }).parse(await c.req.json());
+      const cutoff = Date.now() - body.olderThanDays * 24 * 60 * 60 * 1000;
+      const result = db.run("DELETE FROM contact_messages WHERE created_at < ?", [cutoff]);
+      return c.json({ ok: true, deletedMessages: result.changes });
     } catch (err) {
       return handleError(err);
     }
