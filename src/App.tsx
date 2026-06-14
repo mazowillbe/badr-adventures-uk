@@ -34,6 +34,7 @@ export default function App() {
             <Route path="/sign-up" element={<SignUpPage />} />
             <Route path="/account" element={<AccountPage />} />
             <Route path="/bookings/success" element={<BookingSuccessPage />} />
+            <Route path="/booking-success" element={<BookingSuccessPage />} />
             <Route path="/bookings" element={<BookingsPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
