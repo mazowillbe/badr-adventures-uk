@@ -1,7 +1,13 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const URL = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
-const ANON = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
+// Try build-time (Vite) first, then runtime (server-injected via window.__ENV__)
+const BUILD_URL = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
+const BUILD_ANON = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
+const RUNTIME_URL = (typeof window !== "undefined" && (window as any).__ENV__?.VITE_SUPABASE_URL) as string | undefined;
+const RUNTIME_ANON = (typeof window !== "undefined" && (window as any).__ENV__?.VITE_SUPABASE_ANON_KEY) as string | undefined;
+
+const URL = BUILD_URL || RUNTIME_URL;
+const ANON = BUILD_ANON || RUNTIME_ANON;
 
 export const SUPABASE_CONFIGURED = Boolean(URL && ANON);
 
@@ -11,7 +17,7 @@ export function supabase(): SupabaseClient {
   if (_client) return _client;
   if (!URL || !ANON) {
     throw new Error(
-      "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set in zosite.json env (or .env) before the client can talk to Supabase.",
+      "VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set — add them to your Render env vars (as Build Env Vars), or set them in .env locally.",
     );
   }
   _client = createClient(URL, ANON, {

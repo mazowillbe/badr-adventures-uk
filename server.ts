@@ -64,7 +64,17 @@ function configureProduction(app: Hono) {
         return new Response(file);
       }
     }
-    return serveStatic({ path: "./dist/index.html" })(c, next);
+    // Inject runtime env vars into the HTML so the client can read them
+    const html = await Bun.file("./dist/index.html").text();
+    const runtimeEnv = {
+      VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL || "",
+      VITE_SUPABASE_ANON_KEY: process.env.VITE_SUPABASE_ANON_KEY || "",
+    };
+    const injected = html.replace(
+      "</head>",
+      `<script>window.__ENV__ = ${JSON.stringify(runtimeEnv)}</script></head>`,
+    );
+    return c.html(injected);
   });
 }
 
