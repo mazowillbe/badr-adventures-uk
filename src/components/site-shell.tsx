@@ -19,6 +19,8 @@ import {
 import { api } from "@/lib/api";
 import { useCart } from "@/lib/cart-context";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { clearStoredUser } from "@/lib/api";
 import { CartBadge } from "@/lib/cart-context";
 
 export type Me = {
@@ -91,10 +93,11 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      await api<{ ok: true }>("/api/auth/logout", { method: "POST" });
+      await supabase().auth.signOut();
     } catch {
       // ignore
     }
+    clearStoredUser();
     setUser(null);
     toast.success("Signed out");
     navigate("/");
