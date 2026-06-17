@@ -91,28 +91,30 @@ export function SiteShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-    const signOut = async () => {
-    // 1. Call Supabase signOut FIRST to invalidate the server-side session
+      const signOut = async () => {
+    // Nuclear clear: destroy EVERYTHING before Supabase can re-hydrate
     try {
-      await supabase().auth.signOut();
+      // First, stop any background Supabase activity
+      const sb = supabase();
+      sb.auth.stopAutoRefresh();
     } catch {
-      // ignore — keep going even if the API call fails
+      // ignore
     }
-    // 2. Then blow away every trace of session data from localStorage
     try {
-      const knownKeys = [
+      // Nuke all known Supabase/badr keys
+      const keysToRemove = [
         "badr.supabase.session",
         "badr.supabase.session-code-verifier",
         "badr.user",
         "badr.cart",
       ];
-      for (const key of knownKeys) {
+      for (const key of keysToRemove) {
         localStorage.removeItem(key);
       }
-      // Also remove any key starting with sb- (Supabase internal)
+      // Nuke ALL sb- prefixed keys (Supabase internal)
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const key = localStorage.key(i);
-        if (key && key.startsWith("sb-")) {
+        if (key && (key.startsWith("sb-") || key.includes("supabase") || key.startsWith("badr."))) {
           localStorage.removeItem(key);
         }
       }
@@ -123,7 +125,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
     resetSupabaseClient();
     setUser(null);
     toast.success("Signed out");
-    // Hard redirect forces a clean page load
+    // Hard redirect forces a full page reload with zero stored session data
     window.location.href = "/";
   };
 
