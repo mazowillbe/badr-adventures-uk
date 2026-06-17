@@ -19,7 +19,7 @@ import {
 import { api } from "@/lib/api";
 import { useCart } from "@/lib/cart-context";
 import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
+import { supabase, resetSupabaseClient } from "@/lib/supabase";
 import { clearStoredUser } from "@/lib/api";
 import { CartBadge } from "@/lib/cart-context";
 
@@ -97,7 +97,18 @@ export function SiteShell({ children }: { children: ReactNode }) {
     } catch {
       // ignore
     }
+    // Manually clear ALL persisted session data so a page reload doesn't re-auth
+    try {
+      for (const key of Object.keys(localStorage)) {
+        if (key.startsWith("badr.") || key.startsWith("sb-")) {
+          localStorage.removeItem(key);
+        }
+      }
+    } catch {
+      // ignore
+    }
     clearStoredUser();
+    resetSupabaseClient();
     setUser(null);
     toast.success("Signed out");
     navigate("/");

@@ -31,3 +31,8 @@ export function supabase(): SupabaseClient {
   });
   return _client;
 }
+
+/** Force the singleton to be recreated on next call. Used after sign-out. */
+export function resetSupabaseClient(): void {
+  _client = null;
+}
